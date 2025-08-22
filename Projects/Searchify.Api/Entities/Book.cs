@@ -39,10 +39,6 @@ public class BookEntityConfiguration : IElasticSearchConfigurationBuilder
 
     public async Task ConfigureAsync(ElasticsearchClient client)
     {
-        var indexExist = await client.ExistsAsync(BookEntityModel.IndexName);
-        if (indexExist.Exists)
-            return;
-
         var response = await client.Indices.CreateAsync(BookEntityModel.IndexName, c => c
             .Settings(s => s
                 .NumberOfShards(1)
