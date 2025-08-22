@@ -7,7 +7,6 @@ public class BookEntityModel
 {
     public const string IndexName = "book";
 
-    public string Id { get; set; }
     public string Title { get; set; }
     public string Author { get; set; }
     public string Publisher { get; set; }
@@ -17,6 +16,21 @@ public class BookEntityModel
     public DateTime PublishDate { get; set; }
     public int PageCount { get; set; }
     public double Rating { get; set; }
+
+    public static BookEntityModel Create(string title, string author, string publisher, string isbn, string description,
+        List<string> categories, DateTime publishDate, int pageCount, double rating)
+        => new()
+        {
+            Title = title,
+            Author = author,
+            Publisher = publisher,
+            ISBN = isbn,
+            Description = description,
+            Categories = categories,
+            PublishDate = publishDate,
+            PageCount = pageCount,
+            Rating = rating
+        };
 }
 
 public class BookEntityConfiguration : IElasticSearchConfigurationBuilder
