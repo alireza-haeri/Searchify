@@ -11,28 +11,50 @@ public class UpdateBookEndpoint : BookEndpointBase
     {
         var group = MapBookGroup(app);
 
-        group.MapPut("{isbn}", async (UpdateBookRequest request, string isbn, ElasticsearchClient client) =>
+        group.MapPut("{isbn}", async (UpdateBookRequest request, string isbn, ElasticsearchClient client,CancellationToken token) =>
         {
-            var validationResult = await new UpdateBookRequestValidator().ValidateAsync(request);
+            var validationResult = await new UpdateBookRequestValidator().ValidateAsync(request, token);
             if (!validationResult.IsValid)
                 return Results.ValidationProblem(validationResult.ToDictionary());
 
             var book = await client.SearchAsync<BookEntityModel>(b => b
+                .Size(1)
                 .Query(q => q
-                    .Match(m => m
+                    .Term(m => m
                         .Field(f => f
                             .ISBN)
-                        .Query(isbn))));
+                        .Value(isbn))), token);
             var hit = book.Hits.FirstOrDefault();
+            var data = book.Documents.FirstOrDefault();
 
-            if (hit is null)
+            if (hit is null || data is null)
                 return Results.NotFound("Book not found");
+
+            if (request.Isbn != data.ISBN)
+            {
+                var exist = await client.SearchAsync<BookEntityModel>(a => a
+                        .Indices(BookEntityModel.IndexName)
+                        .Size(1)
+                        .Query(q => q
+                            .Term(m => m
+                                .Field(f => f.ISBN)
+                                .Value(request.Isbn)
+                            )
+                        )
+                    , token);
             
-            await client.UpdateAsync<BookEntityModel, object>(
+                var existHit = exist.Hits.FirstOrDefault();
+                if (existHit is not null)
+                    return Results.Problem($"Book with ISBN: {request.Isbn} already exists",statusCode:StatusCodes.Status409Conflict);
+            }
+            
+            var response = await client.UpdateAsync<BookEntityModel, object>(
                 index: BookEntityModel.IndexName,
                 id: hit.Id,
                 descriptor => descriptor
-                    .Doc(request));
+                    .Doc(request), cancellationToken: token);
+            if (!response.IsValidResponse)
+                return Results.BadRequest();
 
             return Results.Ok(new UpdateBookResponse(
                 request.Title,
@@ -44,7 +66,8 @@ public class UpdateBookEndpoint : BookEndpointBase
                 request.PublishDate,
                 request.PageCount,
                 request.Rating));
-        });
+        })
+        .WithSummary("UpdateBook");
     }
 
     public record UpdateBookRequest(

@@ -11,16 +11,32 @@ public class CreateBookEndpoint : BookEndpointBase
     {
         var group = MapBookGroup(app);
 
-        group.MapPost("", async (CreateBookRequest request, ElasticsearchClient client) =>
+        group.MapPost("", async (CreateBookRequest request, ElasticsearchClient client,CancellationToken token) =>
         {
-            var validationResult = await new CreateBookRequestValidator().ValidateAsync(request);
+            var validationResult = await new CreateBookRequestValidator().ValidateAsync(request, token);
             if (!validationResult.IsValid)
                 return Results.ValidationProblem(validationResult.ToDictionary());
 
+            var exist = await client.SearchAsync<BookEntityModel>(a => a
+                    .Indices(BookEntityModel.IndexName)
+                    .Query(q => q
+                        .Term(m => m
+                            .Field(f => f.ISBN)
+                            .Value(request.Isbn)
+                        )
+                    )
+                , token);
+            
+            var hit = exist.Hits.FirstOrDefault();
+            if (hit is not null)
+                return Results.Problem($"Book with ISBN: {request.Isbn} already exists",statusCode:StatusCodes.Status409Conflict);
+            
             var index = request.ToEntity();
 
-            await client.IndexAsync(index, d => d.Index(BookEntityModel.IndexName));
-
+            var response = await client.IndexAsync(index, d => d.Index(BookEntityModel.IndexName), token);
+            if (!response.IsValidResponse)
+                return Results.BadRequest();
+                
             return Results.Created($"/api/book/{index.ISBN}", 
                 new CreateBookResponse(
                 index.Title,
@@ -32,7 +48,8 @@ public class CreateBookEndpoint : BookEndpointBase
                 index.PublishDate,
                 index.PageCount,
                 index.Rating));
-        });
+        })
+        .WithSummary("CreateBook");
     }
 
     public record CreateBookRequest(

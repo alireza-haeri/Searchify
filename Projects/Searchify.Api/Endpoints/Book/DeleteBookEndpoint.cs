@@ -15,9 +15,9 @@ public class DeleteBookEndpoint : BookEndpointBase
             var book = await client.SearchAsync<BookEntityModel>(a => a
                 .Indices(BookEntityModel.IndexName)
                 .Query(q => q
-                    .Match(m => m
+                    .Term(m => m
                         .Field(f => f.ISBN)
-                        .Query(isbn)
+                        .Value(isbn)
                     )
                 ), token);
 
@@ -34,6 +34,7 @@ public class DeleteBookEndpoint : BookEndpointBase
                 return Results.BadRequest();
             
             return Results.Ok();
-        });
+        })
+        .WithSummary("DeleteBook");
     }
 }
