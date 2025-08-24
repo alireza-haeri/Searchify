@@ -9,6 +9,8 @@ Built to demonstrate **real-world search scenarios**, optimized queries, and a p
 ![Docker](https://img.shields.io/badge/Docker-ready-blue)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
+<img width="2560" height="1416" alt="2 Searchfy" src="https://github.com/user-attachments/assets/c4ed4e8d-e7e6-4ce8-886a-5a8ed775b282" />
+
 <br>
 
 ## **✨ Features**
