@@ -11,7 +11,7 @@ public class GetBookByIsbnEndpoint : BookEndpointBase
     {
         var group = MapBookGroup(app);
 
-        group.MapGet("{isbn}", async (
+        group.MapGet("{isbn:length(10,13)}", async (
             ElasticsearchClient client,
             CancellationToken token,
             [FromRoute] string? isbn) =>
