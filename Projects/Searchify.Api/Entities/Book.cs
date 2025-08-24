@@ -12,13 +12,13 @@ public class BookEntityModel
     public string Publisher { get; set; }
     public string ISBN { get; set; }
     public string Description { get; set; }
-    public List<string> Categories { get; set; }
+    public string[] Categories { get; set; }
     public DateTime PublishDate { get; set; }
     public int PageCount { get; set; }
     public double Rating { get; set; }
 
     public static BookEntityModel Create(string title, string author, string publisher, string isbn, string description,
-        List<string> categories, DateTime publishDate, int pageCount, double rating)
+        string[] categories, DateTime publishDate, int pageCount, double rating)
         => new()
         {
             Title = title,
@@ -36,6 +36,7 @@ public class BookEntityModel
 public class BookEntityConfiguration : IElasticSearchConfigurationBuilder
 {
     private const string CustomAnalyzer = "custom_text_analyzer";
+    private const string LowercaseNormalizer = "lowercase_normalizer";
 
     public async Task ConfigureAsync(ElasticsearchClient client)
     {
@@ -47,6 +48,11 @@ public class BookEntityConfiguration : IElasticSearchConfigurationBuilder
                     .Analyzers(an => an
                         .Custom(CustomAnalyzer, ca => ca
                             .Tokenizer("standard")
+                            .Filter("lowercase", "asciifolding")
+                        )
+                    )
+                    .Normalizers(n => n
+                        .Custom(LowercaseNormalizer, cn => cn
                             .Filter("lowercase", "asciifolding")
                         )
                     )
@@ -63,21 +69,17 @@ public class BookEntityConfiguration : IElasticSearchConfigurationBuilder
                     )
                     .Text(t => t.Author, d => d
                         .Analyzer(CustomAnalyzer)
-                        .Fields(f => f
-                            .Keyword("keyword")
-                        )
+                        .Fields(f => f.Keyword("keyword"))
                     )
                     .Text(t => t.Publisher, d => d
                         .Analyzer(CustomAnalyzer)
-                        .Fields(f => f
-                            .Keyword("keyword")
-                        )
+                        .Fields(f => f.Keyword("keyword"))
                     )
                     .Keyword(k => k.ISBN)
                     .Text(t => t.Categories, d => d
                         .Analyzer(CustomAnalyzer)
                         .Fields(f => f
-                            .Keyword("keyword")
+                            .Keyword("keyword", kd => kd.Normalizer(LowercaseNormalizer))
                         )
                     )
                     .Date(d => d.PublishDate)
@@ -88,3 +90,4 @@ public class BookEntityConfiguration : IElasticSearchConfigurationBuilder
         );
     }
 }
+

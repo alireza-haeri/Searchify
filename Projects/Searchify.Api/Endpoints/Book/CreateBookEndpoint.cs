@@ -58,7 +58,7 @@ public class CreateBookEndpoint : BookEndpointBase
         string Publisher,
         string Isbn,
         string Description,
-        List<string> Categories,
+        string[] Categories,
         DateTime PublishDate,
         int PageCount,
         double Rating
@@ -75,7 +75,7 @@ public class CreateBookEndpoint : BookEndpointBase
         string Publisher,
         string Isbn,
         string Description,
-        List<string> Categories,
+     string[] Categories,
         DateTime PublishDate,
         int PageCount,
         double Rating
@@ -106,7 +106,7 @@ public class CreateBookEndpoint : BookEndpointBase
 
             RuleFor(x => x.Categories)
                 .NotNull().WithMessage("Categories must be provided.")
-                .Must(c => c.Count > 0).WithMessage("At least one category is required.");
+                .Must(c => c.Length > 0).WithMessage("At least one category is required.");
 
             RuleFor(x => x.PublishDate)
                 .LessThanOrEqualTo(DateTime.Today).WithMessage("Publish date cannot be in the future.");
