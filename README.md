@@ -85,11 +85,16 @@ Pull it from [Docker Hub](https://hub.docker.com/_/elasticsearch):
 
 <br>
 
-### 📫 Let's Connect!
+### 📫 Let's Connect
 
-Feel free to reach out if you want to collaborate on a project or just want to chat.
-
-- 🔗 **LinkedIn:** [in/alireza-haeri-dev](https://www.linkedin.com/in/alireza-haeri-dev)  
-- 🔗 **Telegram:** [@AlirezaHaeriDev](https://t.me/AlirezaHaeriDev)  
-- 🔗 **Email:** alireza.haeri.dev@gmail.com  
-
+<p align="left">
+  <a href="https://www.linkedin.com/in/alireza-haeri-dev" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+  </a>
+  <a href="https://t.me/AlirezaHaeriDev" target="_blank">
+    <img src="https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram"/>
+  </a>
+  <a href="mailto:alireza.haeri.dev@gmail.com">
+    <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
+  </a>
+</p>
